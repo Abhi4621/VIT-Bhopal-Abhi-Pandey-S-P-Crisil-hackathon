@@ -4,7 +4,7 @@ Handles base paths, data locations, and database configuration.
 """
 
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
@@ -15,7 +15,7 @@ class Settings(BaseModel):
     app_version: str = "1.0.0"
     description: str = "AI/NLP Financial Risk Intelligence Platform"
     tagline: str = "Turning financial noise into actionable risk signals."
-    stress_test_threshold: int = 7
+    stress_test_threshold: int = Field(default=7, ge=1, le=10, description="Impact score threshold (1-10) to trigger stress testing")
     database_url: str = f"sqlite:///{DATABASE_PATH}"
     debug: bool = False
 
