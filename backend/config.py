@@ -19,4 +19,8 @@ class Settings(BaseModel):
     database_url: str = f"sqlite:///{DATABASE_PATH}"
     debug: bool = False
 
+# Ensure required runtime directories exist
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+
 settings = Settings()
