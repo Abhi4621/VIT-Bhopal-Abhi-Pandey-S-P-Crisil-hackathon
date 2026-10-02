@@ -1,0 +1,11 @@
+asset_id,asset_name,asset_type,sector,value,duration,credit_risk
+A001,Tata Motors Equity,Equity,Automotive,2500000.0,0.0,Moderate
+A002,Reliance Industries Equity,Equity,Energy,3000000.0,0.0,Low
+A003,HDFC Bank Senior Debt,Corporate Bond,Banking,1500000.0,4.2,Low
+A004,Adani Enterprises Term Loan,Loan,Infrastructure,1200000.0,3.5,High
+A005,India Sovereign 10Y G-Sec,Government Bond,Sovereign,2000000.0,7.1,Very Low
+A006,ICICI Subordinated Note,Corporate Bond,Banking,800000.0,5.8,Moderate
+A007,Crude Oil Energy Swap,Derivative,Energy,600000.0,1.2,High
+A008,Industrial Metals Index ETF,Commodity Exposure,Materials,900000.0,0.0,Moderate
+A009,Infosys Technologies Equity,Equity,Technology,1800000.0,0.0,Low
+A010,Commercial Real Estate Syndicate Loan,Loan,Real Estate,700000.0,2.8,High

@@ -1,0 +1,11 @@
+id,timestamp,source,company,text
+S201,2026-09-15T09:12:00Z,Synthetic Trader Feed,Tata Motors,Supply chain bottleneck hitting Tata Motors hard. Delivery delays expected this quarter.
+S202,2026-09-16T11:05:00Z,FinSocial Discussion,HDFC Bank,HDFC Bank results are exceptional! NPA levels dropping significantly and margin expansion looking solid.
+S203,2026-09-17T12:30:00Z,Synthetic Market Forum,Reliance Industries,Regulators asking questions on petrochemical tariffs. Watch out for compliance fines.
+S204,2026-09-18T15:10:00Z,Synthetic Trader Feed,Infosys,New AI enterprise platform launch by Infosys looks promising for revenue growth in H2.
+S205,2026-09-19T09:45:00Z,Synthetic Market Forum,Adani Enterprises,Credit outlook downgrade is alarming. Debt refinancing will get much more expensive now.
+S206,2026-09-20T14:00:00Z,FinSocial Discussion,ICICI Bank,50 bps rate hike by RBI will squeeze net interest margins on retail lending books.
+S207,2026-09-21T16:15:00Z,Synthetic Trader Feed,Tata Steel,Consolidation in domestic steel via M&A should increase pricing power over the long term.
+S208,2026-09-22T09:30:00Z,Synthetic Market Forum,Tesla,Geopolitical trade sanctions threaten EV component shipments. Big risk of production backlog.
+S209,2026-09-23T13:20:00Z,FinSocial Discussion,Apple,Massive sales numbers reported for Apple in Asia. Bullish outlook maintained across analysts.
+S210,2026-09-24T17:15:00Z,Synthetic Trader Feed,Reliance Industries,Energy markets rattled by crude oil spike and freight insurance surcharges.
