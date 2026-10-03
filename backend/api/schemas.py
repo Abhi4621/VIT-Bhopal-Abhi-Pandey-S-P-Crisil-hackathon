@@ -29,3 +29,14 @@ class HealthResponse(BaseModel):
     app: str
     version: str
     database_ready: bool
+
+class StressTestRequest(BaseModel):
+    event_type: str = Field(default="Geopolitical", description="Event type for scenario shocks")
+    impact_score: int = Field(default=9, ge=1, le=10, description="Prototype impact score (1-10)")
+    custom_shocks: Optional[dict] = Field(default=None, description="Optional custom shock overrides by asset class")
+
+class IngestResponse(BaseModel):
+    status: str
+    news_records_ingested: int
+    social_records_ingested: int
+    total_signals: int
