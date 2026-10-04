@@ -4,6 +4,7 @@ import MetricsCards from './components/MetricsCards';
 import RiskSignalTable from './components/RiskSignalTable';
 import StressTestPanel from './components/StressTestPanel';
 import ChartsPanel from './components/ChartsPanel';
+import LiveAnalysisTerminal from './components/LiveAnalysisTerminal';
 import { fetchSignals, fetchPortfolio } from './services/api';
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
   const [signals, setSignals] = useState([]);
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeShockScenario, setActiveShockScenario] = useState({ event: 'Geopolitical', impact: 9 });
 
   useEffect(() => {
     loadData();
@@ -26,10 +28,19 @@ export default function App() {
       setSignals(signalsData);
       setPortfolio(portfolioData);
     } catch (err) {
-      console.error('Data load notice:', err);
+      console.warn('Initial data load notice:', err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleNewSignal = (newSignal) => {
+    setSignals(prev => [newSignal, ...prev]);
+  };
+
+  const handleTriggerStressTest = (eventType, impactScore) => {
+    setActiveShockScenario({ event: eventType, impact: impactScore });
+    setActiveTab('stress-tests');
   };
 
   return (
@@ -40,21 +51,23 @@ export default function App() {
         <header className="header-banner">
           <div>
             <h1 className="page-title">
-              {activeTab === 'overview' && 'Executive Risk Overview'}
-              {activeTab === 'signals' && 'Financial Risk Signals Stream'}
+              {activeTab === 'overview' && 'Executive Risk Dashboard'}
+              {activeTab === 'signals' && 'Financial Risk Signal Feed'}
               {activeTab === 'portfolio' && 'Multi-Asset Portfolio Exposure'}
               {activeTab === 'stress-tests' && 'Strategic Portfolio Stress Testing'}
-              {activeTab === 'datasources' && 'Ingested Benchmark Data Feeds'}
-              {activeTab === 'about' && 'About RiskPulse Platform'}
+              {activeTab === 'datasources' && 'Ingested Benchmark Feeds'}
+              {activeTab === 'about' && 'Platform Architecture & Methodology'}
             </h1>
             <p className="page-subtitle">
-              S&P Global & CRISIL Campus Hackathon 2026 — Real-time AI/NLP Risk Analytics
+              S&P Global & CRISIL Campus Hackathon 2026 — AI/NLP Financial Risk Intelligence Platform
             </p>
           </div>
 
-          <button className="btn-primary" onClick={loadData}>
-            ↻ Refresh Feed
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn-primary" onClick={loadData}>
+              ↻ Refresh Feeds
+            </button>
+          </div>
         </header>
 
         {loading ? (
@@ -65,27 +78,47 @@ export default function App() {
           <>
             <MetricsCards signals={signals} portfolio={portfolio} />
 
+            {/* Live Interactive Analysis Terminal on Overview & Signals view */}
+            {(activeTab === 'overview' || activeTab === 'signals') && (
+              <LiveAnalysisTerminal
+                onNewSignalGenerated={handleNewSignal}
+                onTriggerStressTest={handleTriggerStressTest}
+              />
+            )}
+
             {(activeTab === 'overview' || activeTab === 'signals') && (
               <>
                 <ChartsPanel signals={signals} />
-                <RiskSignalTable signals={signals} />
+                <RiskSignalTable
+                  signals={signals}
+                  onTriggerStressTest={handleTriggerStressTest}
+                />
               </>
             )}
 
             {(activeTab === 'overview' || activeTab === 'stress-tests') && (
-              <StressTestPanel />
+              <StressTestPanel
+                key={`${activeShockScenario.event}-${activeShockScenario.impact}`}
+                preloadedEvent={activeShockScenario.event}
+                preloadedImpact={activeShockScenario.impact}
+              />
             )}
 
             {activeTab === 'portfolio' && portfolio && (
               <div className="card-section">
-                <div className="card-title">Current Asset Holdings & Duration</div>
+                <div className="card-title">
+                  <span>Balance Sheet Portfolio Allocation</span>
+                  <span style={{ fontSize: '13px', color: '#94A3B8', fontFamily: 'monospace' }}>
+                    TOTAL ASSETS: {portfolio.asset_count} | DURATION: {portfolio.weighted_duration} YRS
+                  </span>
+                </div>
                 <div className="table-wrapper">
                   <table>
                     <thead>
                       <tr>
                         <th>Asset ID</th>
                         <th>Asset Name</th>
-                        <th>Type</th>
+                        <th>Asset Class</th>
                         <th>Sector</th>
                         <th>Duration (Yrs)</th>
                         <th>Credit Risk</th>
@@ -98,7 +131,7 @@ export default function App() {
                           <td style={{ fontFamily: 'monospace' }}>{a.asset_id}</td>
                           <td><strong>{a.asset_name}</strong></td>
                           <td>{a.asset_type}</td>
-                          <td>{a.sector}</td>
+                          <td style={{ color: '#94A3B8' }}>{a.sector}</td>
                           <td style={{ fontFamily: 'monospace' }}>{a.duration > 0 ? a.duration : '—'}</td>
                           <td>
                             <span className="badge badge-low">{a.credit_risk}</span>
@@ -116,29 +149,41 @@ export default function App() {
 
             {activeTab === 'datasources' && (
               <div className="card-section">
-                <div className="card-title">Active Ingestion Feeds</div>
-                <p style={{ color: '#94A3B8', fontSize: '13px', lineHeight: 1.6 }}>
-                  RiskPulse processes dual logically independent financial feeds:
-                </p>
-                <ul style={{ color: '#F3F4F6', fontSize: '13px', marginLeft: '20px', marginTop: '12px', lineHeight: 1.8 }}>
-                  <li><strong>Financial News Wire (`data/news_sample.csv`):</strong> High-density structured reporting covering supply chain disruptions, regulatory probes, earnings beats, and sovereign debt policy changes.</li>
-                  <li><strong>Social Sentiment Feed (`data/social_sample.csv`):</strong> Real-time analyst chatter and commentary with sentiment polarity cues.</li>
-                  <li><strong>Multi-Asset Portfolio (`data/portfolio.csv`):</strong> Synthetic balance sheet exposure spanning Equity, Corporate Bonds, Government G-Secs, Loans, and Derivatives.</li>
-                </ul>
+                <div className="card-title">Connected Ingestion Pipelines</div>
+                <div style={{ color: '#94A3B8', fontSize: '13px', lineHeight: 1.8 }}>
+                  <p>RiskPulse ingests and normalizes dual independent unstructured financial feeds:</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+                    <div style={{ background: '#0D1321', padding: '16px', borderRadius: '6px', border: '1px solid #1F2937' }}>
+                      <h4 style={{ color: '#F3F4F6', fontSize: '14px', marginBottom: '8px' }}>1. Financial News Stream</h4>
+                      <p style={{ color: '#94A3B8', fontSize: '12px' }}>
+                        Structured wire reports with timestamps, editorial headlines, and detailed contextual article text.
+                        Processes supply chain bottlenecks, monetary policy announcements, and legal/regulatory inquiries.
+                      </p>
+                    </div>
+
+                    <div style={{ background: '#0D1321', padding: '16px', borderRadius: '6px', border: '1px solid #1F2937' }}>
+                      <h4 style={{ color: '#F3F4F6', fontSize: '14px', marginBottom: '8px' }}>2. Market Social Feed</h4>
+                      <p style={{ color: '#94A3B8', fontSize: '12px' }}>
+                        Real-time analyst discussions and sentiment chatter. Normalized through text cleaning, emoji stripping,
+                        and domain polarity scoring before classification.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
             {activeTab === 'about' && (
               <div className="card-section">
-                <div className="card-title">About RiskPulse</div>
+                <div className="card-title">RiskPulse Architecture & Methodology</div>
                 <div style={{ color: '#94A3B8', fontSize: '13px', lineHeight: 1.8 }}>
                   <p><strong>Developed by:</strong> Abhi Pandey (VIT Bhopal University, B.Tech CSE AI & ML)</p>
-                  <p><strong>Target:</strong> S&P Global & Crisil Campus Hackathon 2026</p>
+                  <p><strong>Hackathon:</strong> S&P Global & CRISIL Campus Hackathon 2026</p>
                   <p style={{ marginTop: '12px' }}>
-                    RiskPulse translates unstructured textual announcements into actionable financial risk signals,
-                    producing a normalized Sentiment Score (-1.0 to +1.0), an 8-category Event Classification,
-                    and a Prototype Risk Impact Score (1-10). Signals with impact ≥ 7 trigger automated Module B
-                    Strategic Portfolio Stress Testing across multi-asset allocations.
+                    RiskPulse bridges the gap between unstructured financial textual noise and quantitative balance sheet decision support.
+                    Text records undergo automated HTML unescaping, URL removal, entity resolution, and continuous sentiment scoring (-1.0 to +1.0).
+                    Events are categorized into 8 distinct financial taxonomies. High-impact signals (Impact ≥ 7) automatically trigger Module B
+                    Strategic Portfolio Stress Testing to model valuation drawdowns across multi-asset allocations.
                   </p>
                 </div>
               </div>
