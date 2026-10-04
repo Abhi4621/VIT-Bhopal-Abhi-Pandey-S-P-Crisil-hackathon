@@ -3,12 +3,19 @@ Application configuration for RiskPulse.
 Handles base paths, data locations, and database configuration.
 """
 
+import os
+import tempfile
 from pathlib import Path
 from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
-DATABASE_PATH = BASE_DIR / "backend" / "database" / "riskpulse.db"
+
+# On Vercel / AWS Lambda, use writable /tmp directory
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DATABASE_PATH = Path(tempfile.gettempdir()) / "riskpulse.db"
+else:
+    DATABASE_PATH = BASE_DIR / "backend" / "database" / "riskpulse.db"
 
 class Settings(BaseModel):
     app_name: str = "RiskPulse"
