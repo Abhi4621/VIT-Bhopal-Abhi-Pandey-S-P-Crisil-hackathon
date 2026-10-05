@@ -39,4 +39,5 @@ class IngestResponse(BaseModel):
     status: str
     news_records_ingested: int
     social_records_ingested: int
+    live_records_ingested: int = 0
     total_signals: int

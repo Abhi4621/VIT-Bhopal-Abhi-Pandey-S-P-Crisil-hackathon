@@ -68,14 +68,17 @@ def get_company_signals_endpoint(company: str):
         raise HTTPException(status_code=404, detail=f"No risk signals found for company: {company}")
     return signals
 
+from backend.ingestion.rss_loader import fetch_live_rss_records
+
 @router.post("/ingest", response_model=IngestResponse)
-def run_batch_ingestion():
+def run_batch_ingestion(include_live: bool = Query(False, description="Optionally ingest live public financial RSS feed")):
     """
     Loads synthetic news and social datasets, processes them through the NLP risk engine,
-    and stores all signals in the database.
+    and stores all signals in the database. Optionally fetches live public RSS items.
     """
     news_records = load_news_data()
     social_records = load_social_data()
+    live_count = 0
 
     for item in news_records:
         sig = analyze_text(text=item["text"], company=item["company"], source=item["source"])
@@ -85,12 +88,40 @@ def run_batch_ingestion():
         sig = analyze_text(text=item["text"], company=item["company"], source=item["source"])
         save_signal(sig)
 
+    if include_live:
+        live_records = fetch_live_rss_records(max_items=5)
+        for item in live_records:
+            sig = analyze_text(text=item["text"], company=item.get("company"), source=item["source"])
+            save_signal(sig)
+        live_count = len(live_records)
+
     all_signals = get_signals()
 
     return {
         "status": "success",
         "news_records_ingested": len(news_records),
         "social_records_ingested": len(social_records),
+        "live_records_ingested": live_count,
+        "total_signals": len(all_signals)
+    }
+
+@router.post("/ingest/live", response_model=IngestResponse)
+def run_live_ingestion():
+    """
+    Ingests live headlines from free public financial RSS feed and propagates into risk engine.
+    Gracefully handles offline environments.
+    """
+    live_records = fetch_live_rss_records(max_items=10)
+    for item in live_records:
+        sig = analyze_text(text=item["text"], company=item.get("company"), source=item["source"])
+        save_signal(sig)
+
+    all_signals = get_signals()
+    return {
+        "status": "success",
+        "news_records_ingested": 0,
+        "social_records_ingested": 0,
+        "live_records_ingested": len(live_records),
         "total_signals": len(all_signals)
     }
 

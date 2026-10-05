@@ -60,3 +60,19 @@ def test_stress_test_endpoint():
     assert data["is_triggered"] is True
     assert data["portfolio_value_before"] > data["portfolio_value_after"]
     assert data["percentage_change"] < 0
+
+def test_ingest_endpoint():
+    response = client.post("/ingest?include_live=false")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["news_records_ingested"] >= 10
+    assert data["social_records_ingested"] >= 8
+    assert data["total_signals"] >= 18
+
+def test_ingest_live_endpoint():
+    response = client.post("/ingest/live")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert "live_records_ingested" in data

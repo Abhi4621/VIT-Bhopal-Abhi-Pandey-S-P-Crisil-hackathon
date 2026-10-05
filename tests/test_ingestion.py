@@ -30,3 +30,9 @@ def test_load_social_data():
     assert "company" in first
     assert "text" in first
     assert len(first["text"]) > 5
+
+def test_fetch_live_rss_offline_fallback():
+    from backend.ingestion.rss_loader import fetch_live_rss_records
+    # With non-existent URL or offline simulation, should return empty list gracefully
+    records = fetch_live_rss_records(feed_url="http://invalid.nonexistent.domain/rss", timeout=0.5)
+    assert isinstance(records, list)

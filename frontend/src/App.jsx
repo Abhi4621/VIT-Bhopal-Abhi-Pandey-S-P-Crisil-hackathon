@@ -5,13 +5,14 @@ import RiskSignalTable from './components/RiskSignalTable';
 import StressTestPanel from './components/StressTestPanel';
 import ChartsPanel from './components/ChartsPanel';
 import LiveAnalysisTerminal from './components/LiveAnalysisTerminal';
-import { fetchSignals, fetchPortfolio } from './services/api';
+import { fetchSignals, fetchPortfolio, triggerLiveIngest } from './services/api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [signals, setSignals] = useState([]);
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [liveIngesting, setLiveIngesting] = useState(false);
   const [activeShockScenario, setActiveShockScenario] = useState({ event: 'Geopolitical', impact: 9 });
 
   useEffect(() => {
@@ -31,6 +32,18 @@ export default function App() {
       console.warn('Initial data load notice:', err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLiveIngest = async () => {
+    setLiveIngesting(true);
+    try {
+      await triggerLiveIngest();
+      await loadData();
+    } catch (err) {
+      console.warn('Live ingest notice:', err.message);
+    } finally {
+      setLiveIngesting(false);
     }
   };
 
@@ -64,6 +77,15 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              className="btn-primary"
+              onClick={handleLiveIngest}
+              disabled={liveIngesting}
+              style={{ background: '#0284C7' }}
+              title="Fetch and analyze live public financial RSS feed"
+            >
+              {liveIngesting ? 'Ingesting RSS...' : '📡 Live RSS Feed'}
+            </button>
             <button className="btn-primary" onClick={loadData}>
               ↻ Refresh Feeds
             </button>

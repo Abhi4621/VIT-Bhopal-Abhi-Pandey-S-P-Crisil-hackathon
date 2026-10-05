@@ -77,6 +77,20 @@ export async function analyzeText(text, company = null) {
   }
 }
 
+export async function triggerLiveIngest() {
+  try {
+    const res = await fetch(`${BASE_URL}/ingest/live`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn('Live RSS ingest notice:', err.message);
+    return { status: 'fallback', live_records_ingested: 0 };
+  }
+}
+
 function calculateClientStressTest(eventType, impactScore) {
   const isTriggered = impactScore >= 7;
   const shocks = {
