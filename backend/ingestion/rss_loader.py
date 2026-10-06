@@ -11,7 +11,12 @@ from typing import List, Dict, Any, Optional
 from email.utils import parsedate_to_datetime
 from backend.ingestion.cleaner import clean_financial_text
 
-DEFAULT_RSS_URL = "https://finance.yahoo.com/news/rssindex"
+DEFAULT_RSS_URL = "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-US&gl=US&ceid=US:en"
+FALLBACK_RSS_URLS = [
+    "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+    "https://search.cnbc.com/rs/search/view.html?partnerId=2000&keywords=markets&sort=date&type=all&format=rss",
+    "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml"
+]
 
 def fetch_live_rss_records(
     feed_url: Optional[str] = None,
@@ -25,17 +30,23 @@ def fetch_live_rss_records(
     
     If network is unavailable, returns empty list without raising exceptions.
     """
-    target_url = feed_url or DEFAULT_RSS_URL
-    req = urllib.request.Request(
-        target_url,
-        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) RiskPulse/1.0"}
-    )
+    candidate_urls = [feed_url] if feed_url else [DEFAULT_RSS_URL] + FALLBACK_RSS_URLS
+    xml_data = None
 
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            xml_data = response.read()
-    except Exception as exc:
-        # Fallback gracefully in offline/restricted environments
+    for target_url in candidate_urls:
+        try:
+            req = urllib.request.Request(
+                target_url,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) RiskPulse/1.0"}
+            )
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                xml_data = response.read()
+                if xml_data:
+                    break
+        except Exception:
+            continue
+
+    if not xml_data:
         return []
 
     records: List[Dict[str, Any]] = []

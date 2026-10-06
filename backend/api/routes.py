@@ -106,12 +106,12 @@ def run_batch_ingestion(include_live: bool = Query(False, description="Optionall
     }
 
 @router.post("/ingest/live", response_model=IngestResponse)
-def run_live_ingestion():
+def run_live_ingestion(url: Optional[str] = Query(None, description="Optional custom financial RSS feed URL")):
     """
     Ingests live headlines from free public financial RSS feed and propagates into risk engine.
     Gracefully handles offline environments.
     """
-    live_records = fetch_live_rss_records(max_items=10)
+    live_records = fetch_live_rss_records(feed_url=url, max_items=10)
     for item in live_records:
         sig = analyze_text(text=item["text"], company=item.get("company"), source=item["source"])
         save_signal(sig)
