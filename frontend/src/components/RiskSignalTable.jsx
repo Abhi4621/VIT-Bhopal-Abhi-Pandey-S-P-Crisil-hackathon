@@ -135,7 +135,13 @@ export default function RiskSignalTable({ signals = [], onTriggerStressTest }) {
                       {sig.risk_level}
                     </span>
                   </td>
-                  <td style={{ fontSize: '11px', color: '#94A3B8' }}>{sig.source}</td>
+                  <td style={{ fontSize: '11px', color: '#94A3B8' }}>
+                    {sig.source === 'live_financial_rss' ? (
+                      <span className="badge" style={{ background: 'rgba(2, 132, 199, 0.25)', color: '#38BDF8', border: '1px solid #0284C7', padding: '3px 7px', fontSize: '10px', fontWeight: 600 }}>
+                        📡 LIVE RSS
+                      </span>
+                    ) : sig.source}
+                  </td>
                   <td style={{ fontSize: '12px', maxWidth: '320px', lineHeight: 1.4 }}>
                     {sig.summary}
                   </td>

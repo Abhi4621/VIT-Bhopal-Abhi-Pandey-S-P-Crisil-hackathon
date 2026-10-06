@@ -35,11 +35,16 @@ export default function App() {
     }
   };
 
-  const handleLiveIngest = async () => {
+  const handleLiveIngest = async (customUrl) => {
     setLiveIngesting(true);
     try {
-      await triggerLiveIngest();
-      await loadData();
+      const res = await triggerLiveIngest(customUrl);
+      if (res && res.new_signals && res.new_signals.length > 0) {
+        setSignals(prev => [...res.new_signals, ...prev]);
+      } else {
+        await loadData();
+      }
+      return res;
     } catch (err) {
       console.warn('Live ingest notice:', err.message);
     } finally {
@@ -61,7 +66,7 @@ export default function App() {
       <Sidebar activeTab={activeTab} onSelectTab={setActiveTab} />
 
       <main className="main-content">
-        <header className="header-banner">
+        <header className="header-banner" style={{ flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h1 className="page-title">
               {activeTab === 'overview' && 'Executive Risk Dashboard'}
@@ -76,12 +81,12 @@ export default function App() {
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               className="btn-primary"
-              onClick={handleLiveIngest}
+              onClick={() => handleLiveIngest()}
               disabled={liveIngesting}
-              style={{ background: '#0284C7' }}
+              style={{ background: '#0284C7', border: '1px solid #38BDF8' }}
               title="Fetch and analyze live public financial RSS feed"
             >
               {liveIngesting ? 'Ingesting RSS...' : '📡 Live RSS Feed'}
@@ -105,6 +110,8 @@ export default function App() {
               <LiveAnalysisTerminal
                 onNewSignalGenerated={handleNewSignal}
                 onTriggerStressTest={handleTriggerStressTest}
+                onTriggerLiveIngest={handleLiveIngest}
+                isLiveIngesting={liveIngesting}
               />
             )}
 
