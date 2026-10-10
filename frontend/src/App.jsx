@@ -5,6 +5,7 @@ import RiskSignalTable from './components/RiskSignalTable';
 import StressTestPanel from './components/StressTestPanel';
 import ChartsPanel from './components/ChartsPanel';
 import LiveAnalysisTerminal from './components/LiveAnalysisTerminal';
+import SystemArchitectureDiagram from './components/SystemArchitectureDiagram';
 import { fetchSignals, fetchPortfolio, triggerLiveIngest } from './services/api';
 
 export default function App() {
@@ -203,18 +204,8 @@ export default function App() {
             )}
 
             {activeTab === 'about' && (
-              <div className="card-section">
-                <div className="card-title">RiskPulse Architecture & Methodology</div>
-                <div style={{ color: '#94A3B8', fontSize: '13px', lineHeight: 1.8 }}>
-                  <p><strong>Developed by:</strong> Abhi Pandey (VIT Bhopal University, B.Tech CSE AI & ML)</p>
-                  <p><strong>Hackathon:</strong> S&P Global & CRISIL Campus Hackathon 2026</p>
-                  <p style={{ marginTop: '12px' }}>
-                    RiskPulse bridges the gap between unstructured financial textual noise and quantitative balance sheet decision support.
-                    Text records undergo automated HTML unescaping, URL removal, entity resolution, and continuous sentiment scoring (-1.0 to +1.0).
-                    Events are categorized into 8 distinct financial taxonomies. High-impact signals (Impact ≥ 7) automatically trigger Module B
-                    Strategic Portfolio Stress Testing to model valuation drawdowns across multi-asset allocations.
-                  </p>
-                </div>
+              <div className="card-section" style={{ padding: '24px' }}>
+                <SystemArchitectureDiagram />
               </div>
             )}
           </>
