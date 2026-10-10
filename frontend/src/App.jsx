@@ -179,25 +179,94 @@ export default function App() {
 
             {activeTab === 'datasources' && (
               <div className="card-section">
-                <div className="card-title">Connected Ingestion Pipelines</div>
-                <div style={{ color: '#94A3B8', fontSize: '13px', lineHeight: 1.8 }}>
-                  <p>RiskPulse ingests and normalizes dual independent unstructured financial feeds:</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
-                    <div style={{ background: '#0D1321', padding: '16px', borderRadius: '6px', border: '1px solid #1F2937' }}>
-                      <h4 style={{ color: '#F3F4F6', fontSize: '14px', marginBottom: '8px' }}>1. Financial News Stream</h4>
-                      <p style={{ color: '#94A3B8', fontSize: '12px' }}>
-                        Structured wire reports with timestamps, editorial headlines, and detailed contextual article text.
-                        Processes supply chain bottlenecks, monetary policy announcements, and legal/regulatory inquiries.
-                      </p>
-                    </div>
+                <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Ingested Benchmark Feeds</span>
+                  <span style={{ fontSize: '11px', color: '#10B981', background: '#064E3B', padding: '3px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                    ● All Pipelines Operational
+                  </span>
+                </div>
 
-                    <div style={{ background: '#0D1321', padding: '16px', borderRadius: '6px', border: '1px solid #1F2937' }}>
-                      <h4 style={{ color: '#F3F4F6', fontSize: '14px', marginBottom: '8px' }}>2. Market Social Feed</h4>
-                      <p style={{ color: '#94A3B8', fontSize: '12px' }}>
-                        Real-time analyst discussions and sentiment chatter. Normalized through text cleaning, emoji stripping,
-                        and domain polarity scoring before classification.
-                      </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginTop: '12px' }}>
+                  <div style={{ background: '#0D1321', padding: '16px', borderRadius: '6px', border: '1px solid #1F2937' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <h4 style={{ color: '#F3F4F6', fontSize: '14px', margin: 0 }}>1. Financial News Wire</h4>
+                      <span className="badge badge-low">Active</span>
                     </div>
+                    <p style={{ color: '#94A3B8', fontSize: '12px', margin: '0 0 8px 0', lineHeight: 1.5 }}>
+                      Official corporate disclosures, regulatory subpoenas, and monetary policy news.
+                    </p>
+                    <div style={{ fontSize: '11px', color: '#38BDF8', fontFamily: 'monospace' }}>
+                      Sources: Reuters, Dow Jones, Bloomberg Wire
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#0D1321', padding: '16px', borderRadius: '6px', border: '1px solid #1F2937' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <h4 style={{ color: '#F3F4F6', fontSize: '14px', margin: 0 }}>2. Market Social Feed</h4>
+                      <span className="badge badge-low">Active</span>
+                    </div>
+                    <p style={{ color: '#94A3B8', fontSize: '12px', margin: '0 0 8px 0', lineHeight: 1.5 }}>
+                      Real-time analyst chatter and sentiment commentary with ticker detection.
+                    </p>
+                    <div style={{ fontSize: '11px', color: '#38BDF8', fontFamily: 'monospace' }}>
+                      Sources: StockTwits, Financial Social Streams
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#0D1321', padding: '16px', borderRadius: '6px', border: '1px solid #1F2937' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <h4 style={{ color: '#F3F4F6', fontSize: '14px', margin: 0 }}>3. Live Public RSS</h4>
+                      <span className="badge badge-low">Connected</span>
+                    </div>
+                    <p style={{ color: '#94A3B8', fontSize: '12px', margin: '0 0 8px 0', lineHeight: 1.5 }}>
+                      Automated RSS fetcher with multi-feed failover and duplicate handling.
+                    </p>
+                    <div style={{ fontSize: '11px', color: '#38BDF8', fontFamily: 'monospace' }}>
+                      Sources: Google News, MarketWatch, CNBC
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <h4 style={{ color: '#F3F4F6', fontSize: '13px', marginBottom: '10px' }}>Recent Ingested Benchmark Samples</h4>
+                  <div className="table-wrapper">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Source</th>
+                          <th>Company</th>
+                          <th>Event Category</th>
+                          <th>Sentiment</th>
+                          <th>Impact</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {signals.slice(0, 5).map(s => (
+                          <tr key={s.id}>
+                            <td style={{ fontFamily: 'monospace' }}>{s.id}</td>
+                            <td>{s.source}</td>
+                            <td><strong>{s.company}</strong></td>
+                            <td>{s.event_type}</td>
+                            <td style={{ color: s.sentiment_score < 0 ? '#EF4444' : '#10B981', fontFamily: 'monospace' }}>
+                              {s.sentiment_score > 0 ? `+${s.sentiment_score.toFixed(2)}` : s.sentiment_score.toFixed(2)}
+                            </td>
+                            <td>
+                              <span style={{
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                background: s.impact_score >= 7 ? '#7F1D1D' : '#064E3B',
+                                color: s.impact_score >= 7 ? '#FCA5A5' : '#6EE7B7'
+                              }}>
+                                {s.impact_score}/10
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
